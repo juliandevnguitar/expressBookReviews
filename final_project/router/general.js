@@ -3,6 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 
 public_users.post("/register", (req,res) => {
@@ -28,16 +29,27 @@ public_users.post("/register", (req,res) => {
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
   //Write your code here
+  let promise = new Promise((resolve,reject) => {
+      resolve(books);
+  })
 
-  return res.status(300).json((books));
+  return promise.then((response)=>res.status(200).json(response))
+  .catch(err => res.status(400).json(err));
+  
 });
+
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
   const ISBN = req.params.isbn;
-
-  return res.status(300).json(books[ISBN]);
+  
+  let promise = new Promise((resolve,reject) => {
+    resolve(books[ISBN]);
+    reject("Book not found");
+})
+  return promise.then((response) => res.status(200).json(response))
+  .catch(err => res.status(404).json(err));
  });
   
 // Get book details based on author
@@ -52,8 +64,14 @@ public_users.get('/author/:author',function (req, res) {
     }
   }
 
+  let promise = new Promise ((resolve,reject)=> {
+      resolve(matchingBooks);
+      reject("Author not Found");
+  })
+
   if (matchingBooks.length > 0) {
-    return res.status(200).json(matchingBooks);
+    return promise.then(response => res.status(200).json(response))
+    .catch(err => res.status(404).json(err));
   } else {
     return res.status(404).json("Author not found");
   }   
@@ -71,8 +89,13 @@ public_users.get('/title/:title',function (req, res) {
     }
   }
 
+  let promise = new Promise ((resolve) => {
+      resolve(matchingBooks);
+  })
+
   if (matchingBooks.length > 0) {
-    return res.status(200).json(matchingBooks);
+    return promise.then(response => res.status(200).json(response))
+    .catch(err => res.status(404).json(err));
   } else {
     return res.status(404).json("Title not found");
   } 
