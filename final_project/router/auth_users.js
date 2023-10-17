@@ -58,6 +58,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const username = req.session.authorization.username;
   
   let book_for_review = books[isbn];
+  let id = Object.keys(book_for_review.reviews).length + 1;
 
   let matchingReview;
   let matchingKey;
@@ -72,7 +73,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
    if (matchingReview) {
        book_for_review.reviews[matchingKey] = {...book_for_review.reviews[matchingKey],review}
    } else {
-       book_for_review.reviews = {...book_for_review.reviews,username,review}
+       book_for_review.reviews[id] = {username,review}
    }
 
  
