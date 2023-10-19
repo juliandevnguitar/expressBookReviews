@@ -3,7 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-const axios = require('axios');
+
 
 
 public_users.post("/register", (req,res) => {
@@ -45,7 +45,12 @@ public_users.get('/isbn/:isbn',function (req, res) {
   const ISBN = req.params.isbn;
   
   let promise = new Promise((resolve,reject) => {
-    resolve(books[ISBN]);
+    for (const key in books) {
+        if (books[key].isbn === Number(ISBN)) {
+            resolve(books[key]);
+        }
+    }
+    
     reject("Book not found");
 })
   return promise.then((response) => res.status(200).json(response))
@@ -106,7 +111,13 @@ public_users.get('/review/:isbn',function (req, res) {
   //Write your code here
   const isbn = req.params.isbn;
 
-  return res.status(300).json(books[isbn].reviews);
+  for (const key in books) {
+      if (books[key].isbn === Number(isbn)) {
+        return res.status(300).json(books[key].reviews);
+      }
+  }
+
+  return res.status(404).json("Book not found under this isbn code, please searh another");
 });
 
 module.exports.general = public_users;

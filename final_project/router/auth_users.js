@@ -57,7 +57,13 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const review = req.query.review;
   const username = req.session.authorization.username;
   
-  let book_for_review = books[isbn];
+  let book_for_review;
+
+  for (const key in books) {
+      if (books[key].isbn === Number(isbn)) {
+          book_for_review = books[key];
+      }
+  }
   let id = Object.keys(book_for_review.reviews).length + 1;
 
   let matchingReview;
@@ -85,7 +91,13 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 regd_users.delete("/auth/review/:isbn", (req, res) => {
     const username = req.session.authorization.username;
     const isbn = req.params.isbn;
-    const book_to_delete = books[isbn];
+    let book_to_delete;
+
+   for (const key in books) {
+       if (books[key].isbn === Number(isbn)) {
+           book_to_delete = books[key];
+       }
+   }
 
    for (const key in book_to_delete.reviews) {
        if (book_to_delete.reviews[key].username === username) {
@@ -94,7 +106,7 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
    }
 
 
-  return res.status(300).json(`User ${username} review deleted!`,book_to_delete.reviews);  
+  return res.status(200).json({message: "Review deleted", book_to_delete});  
 
 });
 
